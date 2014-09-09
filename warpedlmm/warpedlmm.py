@@ -9,6 +9,10 @@ class WarpedLMM(object):
     def __init__(self, Y, X, X_selected=None, K=None, warping_function='Snelson', warping_terms=3):
         #self.Y_untransformed = self._scale_data(Y)
         self.Y_untransformed = Y
+
+        if len(np.unique(self.Y_untransformed) != self.Y_untransformed.size):
+            print "Two or more individuals have the same phenotype value. If the data is censored, an appropriate censorship model is needed before the data is passed to WarpedLMM."
+
         self.Y_untransformed.flags.writeable = False
         self.Y = self.Y_untransformed
         self.X = X
@@ -86,28 +90,30 @@ class WarpedLMM(object):
 
         self.warping_params = np.array([self.params[p] for p in self.warping_params_names])
         self.Y = self.transform_data()
-        self.YYT = np.dot(self.Y, self.Y.T)
 
         self.K_genetics = self.params['sigma_g'] * self.XXT
 
         if self.X_selected is not None:
-            self.K_selected = np.zeros_like(self.K_genetics)
-            for i in range(self.X_selected.shape[1]):
-                Xsigma = self.X_selected[:, i:i+1] * np.sqrt(self.params['sigma_d_%d' % i])
-                self.K_selected += np.dot(Xsigma, Xsigma.T)
+            M = np.diag([self.params['sigma_d_%d' % i] for i in range(self.X_selected.shape[1])])
+            self.K_selected = np.dot(np.dot(self.X_selected, M), self.X_selected.T)
+            # self.K1_selected = np.zeros_like(self.K_genetics)
+            # for i in range(self.X_selected.shape[1]):
+            #     Xsigma = self.X_selected[:, i:i+1] * np.sqrt(self.params['sigma_d_%d' % i])
+            #     self.K1_selected += np.dot(Xsigma, Xsigma.T)
         else:
             self.K_selected = 0.0
 
         self.K =  self.K_genetics + self.K_selected + self.params['sigma_e'] * self.I + self.params['bias'] * self.ones
 
         self.K_inv, _, _, self.log_det_K = GPy.util.linalg.pdinv(self.K) # TODO cache 1-kernel case
+        self.alpha = np.dot(self.K_inv, self.Y)
 
     def transform_data(self):
         Y = self.warping_function.f(self.Y_untransformed, self.warping_params)
         return Y
 
     def log_likelihood(self):
-        ll = - 0.5 * self.num_data * np.log(2*np.pi) - 0.5 * self.log_det_K - 0.5 * np.dot(np.dot(self.Y.T, self.K_inv), self.Y)[0,0]
+        ll = - 0.5 * self.num_data * np.log(2*np.pi) - 0.5 * self.log_det_K - 0.5 * np.dot(self.Y.T, self.alpha)[0,0]
         jacobian = self.warping_function.fgrad_y(self.Y_untransformed, self.warping_params)
         return ll + np.log(jacobian).sum()
 
@@ -121,7 +127,7 @@ class WarpedLMM(object):
         return -dquad_dpsi + djac_dpsi
 
     def _log_likelihood_gradients(self):
-        dL_dK = 0.5*np.dot(np.dot(self.K_inv, self.YYT), self.K_inv) - 0.5*self.K_inv
+        dL_dK = 0.5*np.dot(self.alpha, self.alpha.T) - 0.5*self.K_inv # TODO replace with tdot
 
         gradients = {'sigma_e': np.trace(dL_dK),
                      'sigma_g': np.sum(dL_dK * self.XXT),
@@ -149,9 +155,18 @@ class WarpedLMM(object):
         gradients = self._log_likelihood_gradients()
         return -np.hstack([gradients[p] * self.param_transformations[p].gradfactor(self.params[p]) for p in self.params_ordering])
 
-    def optimize(self, messages=1):
-        x_opt = sp.optimize.fmin_l_bfgs_b(self._f, self._get_params(), fprime=self._f_prime, iprint=messages)
-        self._set_params(x_opt[0])
+    def _f_fprime(self, x):
+        self._set_params(x)
+        gradients = self._log_likelihood_gradients()
+        return -self.log_likelihood(), -np.hstack([gradients[p] * self.param_transformations[p].gradfactor(self.params[p]) for p in self.params_ordering])
+
+    def optimize(self, messages=0):
+        #x_opt = sp.optimize.fmin_l_bfgs_b(self._f, self._get_params(), fprime=self._f_prime, iprint=messages)
+        options = {}
+        options['disp'] = messages
+        opt_result = sp.optimize.minimize(self._f_fprime, self._get_params(), method='L-BFGS-B', jac=True, options=options)
+        #self._set_params(x_opt[0])
+        self._set_params(opt_result.x)
 
     def optimize_restarts(self, num_restarts, messages=1):
         NLLs = []
@@ -234,7 +249,7 @@ if __name__ == '__main__':
     Z = X * 0.8 + np.random.randn(N, 1)*0.02
     Z += np.abs(Z.min()) + 0.5
     Y = np.exp(Z)#(1/4.0)
-    m = WarpedLMM(Y, X, warping_terms=2)
+    # m = WarpedLMM(Y, X, warping_terms=2)
     # m.randomize()
     # m.optimize(messages=1)
 
@@ -247,7 +262,7 @@ if __name__ == '__main__':
     # print sp.stats.pearsonr(m.Y, Z)
 
 
-    N = 120
+    N = 500
     X = np.random.randn(N, 500)
     Z = np.dot(X, np.random.randn(500,1)*.1) + np.random.randn(N, 1)*0.1
     Z += np.abs(Z.min()) + 0.5
