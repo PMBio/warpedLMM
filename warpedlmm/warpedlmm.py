@@ -10,7 +10,7 @@ class WarpedLMM(object):
         #self.Y_untransformed = self._scale_data(Y)
         self.Y_untransformed = Y
 
-        if len(np.unique(self.Y_untransformed) != self.Y_untransformed.size):
+        if len(np.unique(self.Y_untransformed)) < self.Y_untransformed.size:
             print "Two or more individuals have the same phenotype value. If the data is censored, an appropriate censorship model is needed before the data is passed to WarpedLMM."
 
         self.Y_untransformed.flags.writeable = False
@@ -96,17 +96,18 @@ class WarpedLMM(object):
         if self.X_selected is not None:
             M = np.diag([self.params['sigma_d_%d' % i] for i in range(self.X_selected.shape[1])])
             self.K_selected = np.dot(np.dot(self.X_selected, M), self.X_selected.T)
-            # self.K1_selected = np.zeros_like(self.K_genetics)
-            # for i in range(self.X_selected.shape[1]):
-            #     Xsigma = self.X_selected[:, i:i+1] * np.sqrt(self.params['sigma_d_%d' % i])
-            #     self.K1_selected += np.dot(Xsigma, Xsigma.T)
         else:
             self.K_selected = 0.0
 
         self.K =  self.K_genetics + self.K_selected + self.params['sigma_e'] * self.I + self.params['bias'] * self.ones
 
-        self.K_inv, _, _, self.log_det_K = GPy.util.linalg.pdinv(self.K) # TODO cache 1-kernel case
-        self.alpha = np.dot(self.K_inv, self.Y)
+        try:
+            self.K_inv, _, _, self.log_det_K = GPy.util.linalg.pdinv(self.K) # TODO cache 1-kernel case
+            self.alpha = np.dot(self.K_inv, self.Y)
+        except np.linalg.LinAlgError:
+            print "Warning: adding constant jitter (you can turn it off with model.jitter=0.0)"
+            self.jitter = 1e-4
+            
 
     def transform_data(self):
         Y = self.warping_function.f(self.Y_untransformed, self.warping_params)

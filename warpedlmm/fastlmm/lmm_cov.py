@@ -271,7 +271,27 @@ class LMM(object):
             return res['nLL']
         min = minimize1D(f=f, nGrid=nGridH2, minval=minH2, maxval=maxH2 )
         return resmin[0]
-        
+
+    def find_log_delta(self, sid_count, min_log_delta=-5, max_log_delta=10, nGrid=10, **kwargs):
+        '''
+        #Need comments
+        '''
+        #f = lambda x : (self.nLLeval(h2=x,**kwargs)['nLL'])
+        resmin=[None]
+        def f(x,resmin=resmin,**kwargs):
+            h2 = 1.0/(np.exp(x)*sid_count+1) #We convert from external log_delta to h2 and then back again so that this code is most similar to findH2
+
+            res = self.nLLeval(h2=h2,**kwargs)
+            if (resmin[0] is None) or (res['nLL']<resmin[0]['nLL']):
+                resmin[0]=res
+            #logging.info("search\t{0}\t{1}".format(x,res['nLL']))
+            return res['nLL']
+        min = minimize1D(f=f, nGrid=nGrid, minval=min_log_delta, maxval=max_log_delta )
+        res = resmin[0]
+        internal_delta = 1.0/res['h2']-1.0
+        ln_external_delta = np.log(internal_delta / sid_count)
+        res['log_delta'] = ln_external_delta
+        return res
 
     def findH2(self, nGridH2=10, minH2=0.0, maxH2=0.99999, estimate_Bayes=False, **kwargs):
         '''

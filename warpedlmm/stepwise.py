@@ -3,7 +3,7 @@ from warpedlmm import WarpedLMM
 import util.qvalue as qvalue
 import fastlmm
 
-def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_covariates=10, qv_cutoff=0.05):
+def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_covariates=10, qv_cutoff=None, pv_cutoff=5e-8):
     Xt = X.copy()
     Xt -= Xt.mean(axis=0)
     Xt /= Xt.std(axis=0)
@@ -16,7 +16,6 @@ def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_cova
 
     included = []
     converged = False
-    cutoff = qv_cutoff
     iterations = 1
     estimated_h2s = []
     likelihoods = []
@@ -30,25 +29,34 @@ def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_cova
         y_pheno /= y_pheno.std()
 
         covariates -= covariates.mean(0)
-        covariates /= covariates.std(0)        
+        covariates /= covariates.std(0)
 
-        # import panama.core.testing as testing
-        # pv_lmm = testing.interface(X.copy(), y_pheno.copy(), K.copy(), covariates)[0].flatten()
+        #import panama.core.testing as testing
+        # pv_lmm_panama = testing.interface(X.copy(), y_pheno.copy(), K.copy(), covariates)[0].flatten()
         pv_lmm, h2 = fastlmm.assoc_scan(y_pheno.copy(), X.copy(), K=K.copy(), covariates=covariates)
-        qv_lmm = qvalue.estimate(pv_lmm)
-        sorted_qv_ind = np.argsort(qv_lmm)
-        candidate_index = sorted_qv_ind[0]
-        candidate_qv = qv_lmm[candidate_index]
-        significant = (qv_lmm <= cutoff)
 
+        if qv_cutoff is not None:
+            qv_lmm = qvalue.estimate(pv_lmm)
+            sorted_qv_ind = np.argsort(qv_lmm)
+            candidate_index = sorted_qv_ind[0]
+            candidate_sign = qv_lmm[candidate_index]
+            significant = (qv_lmm <= qv_cutoff)
+            cutoff = qv_cutoff
+        else:
+            significant = (pv_lmm <= pv_cutoff)
+            sorted_pv_ind = np.argsort(pv_lmm)
+            candidate_index = sorted_pv_ind[0]
+            candidate_sign = pv_lmm[candidate_index]
+            cutoff = pv_cutoff
+            
         likelihoods.append(m.log_likelihood())
-        h2 = m.params['sigma_g']/m.params['sigma_e']
+        # h2 = m.params['sigma_g']/m.params['sigma_e']
         estimated_h2s.append(h2)
 
         status = "Iteration: {0}, significant SNPs: {1}, included SNPs: {2},  heritability: {3:.4f}, f: {4}".format(iterations, significant.sum(), len(included), estimated_h2s[-1], likelihoods[-1])
         print status
 
-        if candidate_qv > cutoff or len(included) >= max_covariates:
+        if candidate_sign > cutoff or len(included) >= max_covariates:
             converged = True
             continue
 

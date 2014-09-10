@@ -1,5 +1,5 @@
 import numpy as np
-from warpedlmm import WarpedLMM
+from warpedlmm.warpedlmm import WarpedLMM
 import unittest
 import scipy as sp
 
