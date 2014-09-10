@@ -28,8 +28,9 @@ def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_cova
         y_pheno -= y_pheno.mean()
         y_pheno /= y_pheno.std()
 
-        covariates -= covariates.mean(0)
-        covariates /= covariates.std(0)
+        if covariates is not None:
+            covariates -= covariates.mean(0)
+            covariates /= covariates.std(0)
 
         #import panama.core.testing as testing
         # pv_lmm_panama = testing.interface(X.copy(), y_pheno.copy(), K.copy(), covariates)[0].flatten()
