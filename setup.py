@@ -11,7 +11,7 @@ setup(name = 'WarpedLMM',
       license="BSD 3-clause",
       keywords="genetics GWAS",
       packages = ["warpedlmm.fastlmm", 'warpedlmm.testing', 'warpedlmm.util'],
-      install_requires=['pandas', 'scipy', 'numpy', 'matplotlib', 'pysnptools'], # pandas, scipy, numpy
+      install_requires=['scipy>=0.13', 'numpy>=1.8', 'matplotlib>=1.2', 'nose', 'pysnptools'],
       classifiers=[
       "License :: OSI Approved :: BSD License"],
       )

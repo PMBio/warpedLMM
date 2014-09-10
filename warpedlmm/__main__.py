@@ -2,7 +2,6 @@ import warpedlmm
 import argparse
 import testing
 from numpy.testing import Tester
-import pandas
 import pysnptools.snpreader.bed
 import pysnptools.util.util
 import fastlmm
