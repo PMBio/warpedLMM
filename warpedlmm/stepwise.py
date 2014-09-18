@@ -16,7 +16,7 @@
 import numpy as np
 from warpedlmm import WarpedLMM
 import util.qvalue as qvalue
-import fastlmm
+import fastlmm_interface as fastlmm
 
 def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_covariates=10, qv_cutoff=None, pv_cutoff=5e-8):
     Xt = X.copy()

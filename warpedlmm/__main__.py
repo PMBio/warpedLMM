@@ -22,7 +22,7 @@ import fastlmm.pyplink.util as util
 import fastlmm.pyplink.util.stdizer as stdizer
 # import pysnptools.snpreader.bed
 # import pysnptools.util.util
-import fastlmm
+import fastlmm_interface as fastlmm
 import numpy as np
 import stepwise
 
