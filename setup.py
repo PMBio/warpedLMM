@@ -8,10 +8,10 @@ setup(name = 'WarpedLMM',
       author='Nicolo Fusi',
       author_email="fusi@microsoft.com",
       description=("Warped linear mixed model"),
-      license="BSD 3-clause",
+      license="Apache 2.0",
       keywords="genetics GWAS",
-      packages = ["warpedlmm.fastlmm", 'warpedlmm.testing', 'warpedlmm.util'],
-      install_requires=['scipy>=0.13', 'numpy>=1.8', 'matplotlib>=1.2', 'nose', 'pysnptools'],
+      packages = ["warpedlmm", 'warpedlmm.testing', 'warpedlmm.util'],
+      install_requires=['scipy>=0.13', 'numpy>=1.8', 'matplotlib>=1.2', 'nose', 'fastlmm'],
       classifiers=[
       "License :: OSI Approved :: BSD License"],
       )
