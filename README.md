@@ -24,14 +24,14 @@ User documentation is coming soon.
 
 Please cite WarpedLMM in your publications if it helps your research:
 
-       @article{fusi2014genetic,
-                title={Warped linear mixed models for the genetic analysis of transformed phenotypes.},
-                author={Fusi, Nicolo and Lippert, Christoph and Lawrence, Neil D and Stegle, Oliver},
-                journal={Nature Communications (in press)},
-                doi={10.1038/ncomms5890},
-                year={2014}}               
+    @article{fusi2014genetic,
+             title={Warped linear mixed models for the genetic analysis of transformed phenotypes.},
+             author={Fusi, Nicolo and Lippert, Christoph and Lawrence, Neil D and Stegle, Oliver},
+             journal={Nature Communications (in press)},
+             doi={10.1038/ncomms5890},
+             year={2014}}               
 
 #### Contacting us 
 
 You can submit bug reports using the github issue tracker. 
-If you have any other question please contact: fusi [at] microsoft, stegle [at] ebi 
+If you have any other question please contact: fusi [at] microsoft com, stegle [at] ebi ac uk
