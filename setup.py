@@ -13,5 +13,5 @@ setup(name = 'WarpedLMM',
       packages = ["warpedlmm", 'warpedlmm.testing', 'warpedlmm.util'],
       install_requires=['scipy>=0.13', 'numpy>=1.8', 'matplotlib>=1.2', 'nose', 'fastlmm'],
       classifiers=[
-      "License :: OSI Approved :: Apache 2.0"],
+      "License :: OSI Approved :: Apache Software License"],
       )
