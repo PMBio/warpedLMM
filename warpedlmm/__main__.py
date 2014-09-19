@@ -18,8 +18,7 @@ import argparse
 import testing
 from numpy.testing import Tester
 import fastlmm.pyplink.snpreader.Bed as Bed
-import fastlmm.pyplink.util as util
-import fastlmm.pyplink.util.stdizer as stdizer
+from fastlmm.pyplink import util
 # import pysnptools.snpreader.bed
 # import pysnptools.util.util
 import fastlmm_interface as fastlmm
@@ -72,7 +71,7 @@ if __name__ == '__main__':
     Y /= Y.std(0)
 
     # TODO this should be double checked
-    std = stdizer.Unit()
+    std = util.stdizer.Unit()
     X = std.standardize(snp_data.val)
     K = np.dot(X, X.T)
 

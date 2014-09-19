@@ -4,7 +4,7 @@
 from setuptools import setup
 
 setup(name = 'WarpedLMM',
-      version='0.1',
+      version='0.12',
       author='Nicolo Fusi',
       author_email="fusi@microsoft.com",
       description=("Warped linear mixed model"),
@@ -13,5 +13,5 @@ setup(name = 'WarpedLMM',
       packages = ["warpedlmm", 'warpedlmm.testing', 'warpedlmm.util'],
       install_requires=['scipy>=0.13', 'numpy>=1.8', 'matplotlib>=1.2', 'nose', 'fastlmm'],
       classifiers=[
-      "License :: OSI Approved :: BSD License"],
+      "License :: OSI Approved :: Apache 2.0"],
       )
