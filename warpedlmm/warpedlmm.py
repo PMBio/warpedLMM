@@ -15,9 +15,10 @@
 
 import numpy as np
 import scipy as sp
-import GPy
-import transformations
-from warping_functions import TanhWarpingFunction_d
+# import GPy
+import util.transformations as transformations
+from util.warping_functions import TanhWarpingFunction_d
+from util.linalg import pdinv
 np.random.seed(123)
 
 class WarpedLMM(object):
@@ -117,12 +118,12 @@ class WarpedLMM(object):
         self.K =  self.K_genetics + self.K_selected + self.params['sigma_e'] * self.I + self.params['bias'] * self.ones
 
         try:
-            self.K_inv, _, _, self.log_det_K = GPy.util.linalg.pdinv(self.K) # TODO cache 1-kernel case
+            self.K_inv, _, _, self.log_det_K = pdinv(self.K) # TODO cache 1-kernel case
             self.alpha = np.dot(self.K_inv, self.Y)
         except np.linalg.LinAlgError:
             print "Warning: adding constant jitter (you can turn it off with model.jitter=0.0)"
             self.jitter = 1e-4
-            
+
 
     def transform_data(self):
         Y = self.warping_function.f(self.Y_untransformed, self.warping_params)

@@ -8,7 +8,7 @@ This repository contains a python implementation of the warped linear mixed mode
 
 #### Installation
 
-WarpedLMM is available from the python package index.
+WarpedLMM is available from the python package index. 
 
 ```shell
 pip install warpedlmm
@@ -18,7 +18,17 @@ pip install warpedlmm
 
 * [Paper] http://dx.doi.org/10.1038/ncomms5890
 
-User documentation is coming soon.
+To run WarpedLMM, open a terminal and execute:
+
+```shell
+python -m warpedlmm SNP_file phenotype_file
+```
+
+A list of all the command line options can be accessed using
+
+```shell
+python -m warpedlmm --help
+```
 
 #### Citing WarpedLMM
 
