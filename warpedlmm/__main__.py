@@ -16,12 +16,11 @@
 import warpedlmm
 import argparse
 import testing
+import pandas
 from numpy.testing import Tester
-import fastlmm.pyplink.snpreader.Bed as Bed
-from fastlmm.pyplink import util
-from fastlmm.util import util as fastlmm_util
-# import pysnptools.snpreader.bed
-# import pysnptools.util.util
+import fastlmm.pyplink.plink as plink
+from pysnptools.pysnptools.snpreader.bed import Bed
+import pysnptools.pysnptools.util.util as srutil
 import fastlmm_interface as fastlmm
 import numpy as np
 import stepwise
@@ -32,7 +31,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument('snp_file', help='file containing the SNP data (only .bed PLINK files are supported for now)')
     parser.add_argument('phenotype_file',  help='phenotype file in csv format (one sample per row)')
-    parser.add_argument('--test', dest='run_unit_tests', action='store_true', default=False, help='run unit tests (default: False)')
+    parser.add_argument('--test', dest='run_test', action='store_true', default=False, help='check that the warping is working by artificially transforming the phenotype (it computes exp(phenotype)) (default: False)')
     parser.add_argument('--covariates', dest='covariates', action='store', type=str, default=None, help='covariates file (optional)')
     parser.add_argument('--save', dest='save', action='store_true', default=False, help='save transformed phenotype to file. A "_WarpedLMM" is appended to the original phenotype filename. (default: False)')
     parser.add_argument('--random_restarts', dest='random_restarts', action='store', default=3, type=int, help='number of random restarts')
@@ -45,71 +44,65 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
 
-    if options.run_unit_tests:
-        Tester(testing).test(verbose=-1)
-
     # Load SNP data
     snp_data = Bed(options.snp_file)
-    snp_data = snp_data.read()
+    snp_data = snp_data.read().standardize()
 
     # Load phenotype
-    pheno_data_iid = np.loadtxt(options.phenotype_file, delimiter='\t', dtype=str, usecols=[0,1])
-    pheno_data_values = np.loadtxt(options.phenotype_file, delimiter='\t', usecols=[2])
-    pheno_data = [pheno_data_values, pheno_data_iid]
+    pheno = plink.loadPhen(options.phenotype_file)
 
     # Load covariates
     if options.covariates is not None:
-        num_cov = np.loadtxt(options.covariates, delimiter='\t', dtype=str).shape[1]
-        covariates_data_iid = np.loadtxt(options.covariates, delimiter='\t', dtype=str, usecols=[0,1])
-        covariates_data_values = np.loadtxt(options.covariates, delimiter='\t', usecols=range(2, num_cov))
-        covariates_data = [covariates_data_values, covariates_data_iid]
-
-        ind = fastlmm_util.intersect_ids([snp_data['iid'], pheno_data[1], covariates_data[1]])
-        covariates_data[0] = covariates_data[0][ind[:,2]]
-        covariates_data[1] = covariates_data[1][ind[:,2]]
-
-        # if num_cov == 3: # if there's only 1 covariate
-        #     covariates_data[0] = covariates_data[0][:, None]
+        covar = plink.loadPhen(options.covariates)
+        snp_data, pheno, covar = srutil.intersect_apply([snp_data, pheno, covar])
+        covar = covar['vals']
     else:
-        ind = fastlmm_util.intersect_ids([snp_data['iid'], pheno_data[1]])
-        covariates_data = None
+        snp_data, pheno = srutil.intersect_apply([snp_data, pheno])
+        covar = None
 
 
-    pheno_data[0] = pheno_data[0][ind[:,1]]
-    pheno_data[1] = pheno_data[1][ind[:,1]]
-    snp_data['iid'] = snp_data['iid'][ind[:, 0]]
-    snp_data['snps'] = snp_data['snps'][ind[:, 0]]
+    assert np.all(pheno['iid'] == snp_data.iid), "the samples are not sorted"
 
-    assert np.all(pheno_data[1] == snp_data['iid']), "the samples are not sorted"
 
-    Y = pheno_data[0][:, None]
-    Y -= Y.mean(0)
+    Y = pheno['vals']
+    Y -= Y.mean(0) 
     Y /= Y.std(0)
 
-    # TODO this should be double checked
-    std = util.Unit()
-    X = std.standardize(snp_data['snps'])
-    K = np.dot(X, X.T)
+    if options.run_test:
+        Y = np.exp(Y)
 
-    y_pheno, m, _, estimated_h2 = stepwise.warped_stepwise(Y, X, K, covariates=covariates_data[0],
+    X = 1./np.sqrt((snp_data.val**2).sum() / float(snp_data.val.shape[0])) * snp_data.val
+    K = np.dot(X, X.T)
+    
+    y_pheno, m, _, estimated_h2 = stepwise.warped_stepwise(Y, X, K, covariates=covar,
                                                            max_covariates=options.max_covariates, num_restarts=options.random_restarts,
                                                            qv_cutoff=options.qv_cutoff,
                                                            pv_cutoff=options.pv_cutoff)
 
-    pv, h2 = fastlmm.assoc_scan(y_pheno.copy(), X, covariates=covariates_data[0], K=K)
-    results = np.concatenate((snp_data['rs'][:, None], snp_data['pos'], pv[:, None]), axis=1)
+    pv, h2 = fastlmm.assoc_scan(y_pheno.copy(), X, covariates=covar, K=K)
+
+    results = pandas.DataFrame(index=snp_data.sid, columns=['chromosome', 'genetic_distance', 'position', 'p-value'])
+    results['chromosome'] = snp_data.pos[:, 0]
+    results['genetic distance'] = snp_data.pos[:, 1]
+    results['position'] = snp_data.pos[:, 2]
+    results['p-value'] = pv[:, None]
+
     if options.out_dir is None:
         results_file_name = options.phenotype_file.replace('.txt', '')
         results_file_name += "_warpedlmm_results.txt"
     else:
         results_file_name = options.out_dir + "/warpedlmm_results.txt"
 
-    np.savetxt(results_file_name, results, fmt='%s')
+    results.to_csv(results_file_name)
 
     if options.normal:
-        pv_base, h2_base = fastlmm.assoc_scan(Y.copy(), X, covariates=covariates_data[0], K=K)
-        results_base = np.concatenate((snp_data['rs'][:, None], snp_data['pos'], pv_base[:, None]), axis=1)
-        np.savetxt(results_file_name.replace('warpedlmm', 'fastlmm'), results_base, fmt='%s')
+        pv_base, h2_base = fastlmm.assoc_scan(Y.copy(), X, covariates=covar, K=K)
+        results_base = pandas.DataFrame(index=snp_data.sid, columns=['chromosome', 'genetic_distance', 'position', 'p-value'])
+        results_base['chromosome'] = snp_data.pos[:, 0]
+        results_base['genetic distance'] = snp_data.pos[:, 1]
+        results_base['position'] = snp_data.pos[:, 2]
+        results_base['p-value'] = pv_base[:, None]
+        results_base.to_csv(results_file_name.replace('warpedlmm', 'fastlmm'))
 
     if options.save:
         if options.out_dir is None:
@@ -121,6 +114,6 @@ if __name__ == '__main__':
             pheno_file_name = options.out_dir + "/warpedlmm_pheno.txt"
             trafo_file_name = options.out_dir + "/warpedlmm_transformation.png"
 
-        np.savetxt(pheno_file_name, np.concatenate((np.array(pheno_data_iid, dtype='|S15'), y_pheno), axis=1), fmt='%s')
+        np.savetxt(pheno_file_name, np.concatenate((np.array(snp_data.iid, dtype='|S15'), y_pheno), axis=1), fmt='%s')
         m.plot_warping()
         plt.savefig(trafo_file_name)
