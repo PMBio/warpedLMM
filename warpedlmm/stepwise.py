@@ -19,10 +19,9 @@ import util.qvalue as qvalue
 import fastlmm_interface as fastlmm
 
 def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_covariates=10, qv_cutoff=None, pv_cutoff=5e-8):
-    Xt = X.copy()
-    Xt -= Xt.mean(axis=0)
-    Xt /= Xt.std(axis=0)
-    Kt = np.dot(Xt, Xt.T)
+    # Xt = X.copy()
+    # Xt -= Xt.mean(axis=0)
+    # Xt /= Xt.std(axis=0)
 
     if covariates is None:
         num_covariates = 0
@@ -76,7 +75,7 @@ def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_cova
             converged = True
             continue
 
-        X_sign = Xt[:, candidate_index:candidate_index+1]
+        X_sign = X[:, candidate_index:candidate_index+1]
         if covariates != None:
             covariates = np.append(covariates, X_sign, axis=1)
         else:

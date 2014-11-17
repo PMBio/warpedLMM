@@ -23,8 +23,8 @@ np.random.seed(123)
 
 class WarpedLMM(object):
     def __init__(self, Y, X, X_selected=None, K=None, warping_function='Snelson', warping_terms=3):
-        #self.Y_untransformed = self._scale_data(Y)
-        self.Y_untransformed = Y
+        self.Y_untransformed = self._scale_data(Y)
+        # self.Y_untransformed = Y
 
         if len(np.unique(self.Y_untransformed)) < self.Y_untransformed.size:
             print "Two or more individuals have the same phenotype value. If the data is censored, an appropriate censorship model is needed before the data is passed to WarpedLMM."

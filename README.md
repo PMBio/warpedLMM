@@ -24,6 +24,21 @@ To run WarpedLMM, open a terminal and execute:
 python -m warpedlmm SNP_file phenotype_file
 ```
 
+`SNP_file` is a [plink](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml) BED fileset (e.g. you must have SNP_file.bed, SNP_file.fam, SNP_file.bim).
+`pheno_file` is a tab-delimited consisting of 3 columns: individual ID, family ID, phenotype value. For example (look at the [test files]() for more details):
+
+```shell
+per0	per0	-1.19539
+per1	per1	-0.186557
+per2	per2	0.561226
+per3	per3	-0.808649
+per4	per4	0.0214292
+per5	per5	-0.471555
+per6	per6	-0.456994
+per7	per7	-0.740775
+```
+ 
+It's also possible to specify covariates, write the transformed phenotype values to disk, etc.
 A list of all the command line options can be accessed using
 
 ```shell

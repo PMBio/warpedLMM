@@ -1,5 +1,5 @@
-# Copyright (c) 2012, GPy authors (see AUTHORS.txt).
-# Licensed under the BSD 3-clause license (see LICENSE.txt)
+# Copyright (c) 2012, GPy authors (see https://github.com/sheffieldml/gpy/AUTHORS.txt).
+# Licensed under the BSD 3-clause license (see https://github.com/sheffieldml/gp/LICENSE.txt)
 
 # tdot function courtesy of Ian Murray:
 # Iain Murray, April 2013. iain contactable via iainmurray.net
