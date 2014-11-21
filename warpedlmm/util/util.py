@@ -33,7 +33,7 @@ def load_data(snp_file, pheno_file, covar_file):
     return snp_data, pheno, covar, X, Y, K
 
 def write_results_to_file(snp_data, pv, results_filename):
-    results = pandas.DataFrame(index=snp_data.sid, columns=['chromosome', 'genetic_distance', 'position', 'p-value'])
+    results = pandas.DataFrame(index=snp_data.sid, columns=['chromosome', 'genetic distance', 'position', 'p-value'])
 
     results['chromosome'] = snp_data.pos[:, 0]
     results['genetic distance'] = snp_data.pos[:, 1]
