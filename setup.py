@@ -4,7 +4,7 @@
 from setuptools import setup
 
 setup(name = 'WarpedLMM',
-      version='0.18',
+      version='0.19',
       author='Nicolo Fusi',
       author_email="fusi@microsoft.com",
       description=("Warped linear mixed model"),
