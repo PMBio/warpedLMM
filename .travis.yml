@@ -18,10 +18,11 @@ before_install:
 
 install:
   - pip install --upgrade numpy
-  - pip install fastlmm
   - pip install pandas
   - pip install sphinx 
   - pip install nose
+  - pip install Cython
+  - pip install fastlmm
   - pip install . --use-mirrors
 
 script: 
