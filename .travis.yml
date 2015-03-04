@@ -18,7 +18,6 @@ before_install:
 
 install:
   - pip install --upgrade numpy
-  - pip install --upgrade scipy
   - pip install fastlmm
   - pip install pandas
   - pip install sphinx 
