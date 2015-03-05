@@ -7,6 +7,14 @@ Genome-wide association studies, now routine, still have many remaining methodol
 
 This repository contains a python implementation of the warped linear mixed model. WarpedLMM automatically learns an optimal "warping function" for the phenotype simultaneously as it models the data. Our approach effectively searches through an infinite set of transformations, using the principles of statistical inference to determine an optimal one. 
 
+
+[**Warped Linear Mixed Models for the Genetic Analysis of Transformed Phenotypes.**](http://dx.doi.org/10.1038/ncomms5890)
+
+N. Fusi, C. Lippert, N. D. Lawrence and O. Stegle. 
+
+*Nature Communications, 2014*
+
+
 #### Installation
 
 WarpedLMM is available from the python package index. 
@@ -15,9 +23,9 @@ WarpedLMM is available from the python package index.
 pip install warpedlmm
 ```
 
-#### Getting started
+Alternatively, if you want access to the code, you can clone this repository.
 
-* [Paper] http://dx.doi.org/10.1038/ncomms5890
+#### Getting started
 
 To run WarpedLMM, open a terminal and execute:
 
