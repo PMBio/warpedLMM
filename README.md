@@ -1,5 +1,5 @@
 # WarpedLMM
-[![Travis](https://img.shields.io/travis/PMBio/warpedLMM.svg)](https://travis-ci.org/PMBio/warpedLMM)  [![PyPI](https://img.shields.io/pypi/v/warpedlmm.svg)](https://pypi.python.org/pypi/WarpedLMM)
+[![Travis](https://img.shields.io/travis/PMBio/warpedLMM.svg)](https://travis-ci.org/PMBio/warpedLMM)  [![PyPI](https://img.shields.io/pypi/v/warpedlmm.svg)](https://pypi.python.org/pypi/WarpedLMM) [![PyPI](https://img.shields.io/pypi/l/WarpedLMM.svg)]()
 
 #### A python package implementing warped linear mixed models.
 
