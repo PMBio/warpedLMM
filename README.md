@@ -3,17 +3,12 @@
 
 #### A python package implementing warped linear mixed models.
 
-Genome-wide association studies, now routine, still have many remaining methodological open problems. Among the most successful models for GWAS are linear mixed models, also used in several other key areas of genetics, such as phenotype prediction and estimation of heritability. However, one of the fundamental assumptions of these models-that the data have a particular distribution (i.e., the noise is Gaussian-distributed)-rarely holds in practice. As a result, standard approaches yield sub-optimal performance, resulting in significant losses in power for GWAS, increased bias in heritability estimation, and reduced accuracy for phenotype predictions.
+Liner mixed models are widely used in genetics. One of the fundamental assumptions of these models-that the data have a particular distribution (i.e., the noise is Gaussian-distributed)-rarely holds in practice. As a result, standard approaches yield sub-optimal performance, resulting in significant losses in power for GWAS, increased bias in heritability estimation, and reduced accuracy for phenotype predictions.
 
-This repository contains a python implementation of the warped linear mixed model. WarpedLMM automatically learns an optimal "warping function" for the phenotype simultaneously as it models the data. Our approach effectively searches through an infinite set of transformations, using the principles of statistical inference to determine an optimal one. 
+This repository contains a python implementation of the warped linear mixed model, which automatically learns an optimal "warping function" (or transformation) for the phenotype as it models the data. 
 
-
-[**Warped Linear Mixed Models for the Genetic Analysis of Transformed Phenotypes.**](http://dx.doi.org/10.1038/ncomms5890)
-
-N. Fusi, C. Lippert, N. D. Lawrence and O. Stegle. 
-
-*Nature Communications, 2014*
-
+#### Paper
+[**Warped Linear Mixed Models for the Genetic Analysis of Transformed Phenotypes.**](http://dx.doi.org/10.1038/ncomms5890) N. Fusi, C. Lippert, N. D. Lawrence and O. Stegle. *Nature Communications, 2014*
 
 #### Installation
 
