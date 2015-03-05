@@ -1,7 +1,9 @@
 import numpy as np
 from warpedlmm.warpedlmm import WarpedLMM
+import warpedlmm.util as util
 import unittest
 import scipy as sp
+import os
 
 class ModelTests(unittest.TestCase):
     def test_gradients(self):
@@ -30,3 +32,7 @@ class ModelTests(unittest.TestCase):
         m.optimize(messages=0)
 
         self.assertTrue(sp.stats.pearsonr(m.Y, Z)[0] >= 0.9)
+
+class LoaderTests(unittest.TestCase):
+    def test_load(self):
+        snp_data, pheno, covar, X, Y, K = util.load_data(os.path.dirname(os.path.realpath(__file__))+"/sim_data", os.path.dirname(os.path.realpath(__file__))+"/sim_data.pheno", None)
