@@ -1,4 +1,4 @@
-import fastlmm.pyplink.plink as plink
+import pysnptools.util.pheno 
 from pysnptools.snpreader.bed import Bed
 import pysnptools.util as srutil
 import numpy as np
@@ -9,11 +9,11 @@ def load_data(snp_file, pheno_file, covar_file):
     snp_reader = Bed(snp_file)
 
     # Load phenotype
-    pheno = plink.loadPhen(pheno_file)
+    pheno = pysnptools.util.pheno.loadPhen(pheno_file)
 
     # Load covariates
     if covar_file is not None:
-        covar = plink.loadPhen(covar_file)
+        covar = pysnptools.util.pheno.loadPhen(covar_file)
         snp_reader, pheno, covar = srutil.intersect_apply([snp_reader, pheno, covar])
         covar = covar['vals']
     else:
