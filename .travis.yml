@@ -17,7 +17,7 @@ before_install:
   - sudo ln -s /run/shm /dev/shm
 
 install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose sphinx pip nose cython
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose sphinx pip nose cython pandas
   - pip install . 
 
 # command to run tests, e.g. python setup.py test
