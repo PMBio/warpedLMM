@@ -1,6 +1,6 @@
 import fastlmm.pyplink.plink as plink
-from pysnptools.pysnptools.snpreader.bed import Bed
-import pysnptools.pysnptools.util.util as srutil
+from pysnptools.snpreader.bed import Bed
+import pysnptools.util as srutil
 import numpy as np
 import pandas
 
