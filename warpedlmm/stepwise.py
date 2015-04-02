@@ -63,7 +63,7 @@ def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_cova
             candidate_index = sorted_pv_ind[0]
             candidate_sign = pv_lmm[candidate_index]
             cutoff = pv_cutoff
-            
+
         likelihoods.append(m.log_likelihood())
         # h2 = m.params['sigma_g']/m.params['sigma_e']
         estimated_h2s.append(h2)
@@ -76,10 +76,12 @@ def warped_stepwise(Y, X=None, K=None, covariates=None, num_restarts=1, max_cova
             continue
 
         X_sign = X[:, candidate_index:candidate_index+1]
-        if covariates != None:
+        if covariates is not None:
             covariates = np.append(covariates, X_sign, axis=1)
         else:
-            covariates = X_sign
+            covariates = X_sign.copy()
+            covariates.flags.writeable = True
+
 
         iterations += 1
         included.append(candidate_index)
